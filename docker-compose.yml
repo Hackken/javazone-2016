@@ -1,0 +1,77 @@
+mongo:
+  image: mongo
+  ports:
+    - "27017:27017"
+
+storage:
+  image: java:alpine
+  volumes:
+    - ./storage/build/libs/storage-1.0-SNAPSHOT.jar:/var/app.jar:z
+  command: java -jar /var/app.jar -cluster
+  links:
+    - mongo
+    - logstash
+
+bc-service:
+  image: java:alpine
+  volumes:
+    - ./bc-service/build/libs/bc-service-1.0-SNAPSHOT.jar:/var/app.jar:z
+  command: java -jar /var/app.jar -cluster
+  links:
+    - logstash
+
+elasticsearch:
+  image: elasticsearch
+  command: elasticsearch -Des.network.host=0.0.0.0
+  ports:
+    - "9200:9200"
+    - "9300:9300"
+
+logstash:
+  image: logstash
+  command: -e 'input { gelf { host => "0.0.0.0" port => 12201 } }
+            output { elasticsearch { hosts => ["elasticsearch"] } }'
+  links:
+    - elasticsearch
+  ports:
+    - "12201:12201/udp"
+
+kibana:
+  image: kibana
+  ports:
+    - "5601:5601"
+  environment:
+    - ELASTICSEARCH_URL=http://elasticsearch:9200
+  links:
+    - elasticsearch
+    - logstash
+
+web:
+  image: java:alpine
+  volumes:
+    - ./web/build/libs/web-1.0-SNAPSHOT.jar:/var/app.jar:z
+    - ./conf/keycloak.json:/etc/keycloak.json:z
+  command: java -jar /var/app.jar -cluster -conf /etc/keycloak.json
+  ports:
+    - "80:8000"
+  links:
+    - logstash
+    - keycloak
+
+prometheus:
+  image: prom/prometheus
+  volumes:
+    - ./conf/prometheus.yml:/etc/prometheus/prometheus.yml:z
+  ports:
+    - "9090:9090"
+  links:
+    - web
+
+keycloak:
+  image: jboss/keycloak
+  ports:
+    - "8080:8080"
+  environment:
+    - KEYCLOAK_USER=admin
+    - KEYCLOAK_PASSWORD=admin
+    - KEYCLOAK_LOGLEVEL=WARN
