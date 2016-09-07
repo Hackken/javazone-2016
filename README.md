@@ -8,7 +8,7 @@ The application assumes that you have installed:
 * npm
 * nodejs
 
-On top of that you should replace the conf/keycloak.json with your keyclock configuration. In order to configure keycloak I'd recomment to follow the (https://www.youtube.com/watch?v=c20igjL69Mo)[video].
+On top of that you should replace the conf/keycloak.json with your keyclock configuration. In order to configure keycloak I'd recomment to follow the [https://www.youtube.com/watch?v=c20igjL69Mo](video).
 
 In order to build:
 
