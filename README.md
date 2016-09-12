@@ -1,5 +1,7 @@
 This is the source code of the application shown at JavaZone 2016.
 
+[![JavaZone 2016](https://i.vimeocdn.com/video/590624634_295x166.jpg)](https://vimeo.com/album/4133413/video/181905280 "Lets build a reactive async app in < 60min")
+
 The application assumes that you have installed:
 
 * gradle
